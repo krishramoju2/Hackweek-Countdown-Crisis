@@ -1,17 +1,32 @@
+'use client';
 import { useEffect, useState } from 'react';
 
 export default function CommunityInfo() {
   const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchMessage = async () => {
-      const res = await fetch('/cosc.json');
-      const data = await res.json();
-      setData(data);
+      try {
+        const res = await fetch('/cosc.json');
+        if (!res.ok) throw new Error('Failed to load data');
+        const json = await res.json();
+        setData(json);
+      } catch (err) {
+        setError(err.message);
+      }
     };
 
     fetchMessage();
   }, []);
+
+  if (error) {
+    return <div className="text-red-600 text-center">Error: {error}</div>;
+  }
+
+  if (!data) {
+    return <div className="text-gray-500 text-center">Loading...</div>;
+  }
 
   return (
     <div className="text-center mb-6">
@@ -35,7 +50,12 @@ export default function CommunityInfo() {
           <svg className="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
           </svg>
-          <a href={data.url} className="text-blue-600 hover:text-blue-800 underline text-lg" target="_blank" rel="noopener noreferrer">
+          <a
+            href={data.url}
+            className="text-blue-600 hover:text-blue-800 underline text-lg"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Visit Website
           </a>
         </div>
